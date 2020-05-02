@@ -1,0 +1,88 @@
+HomeController file
+
+using application.Asp.net_mvc_02.Models;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace application.Asp.net_mvc_02.Controllers
+{
+    public class HomeController: Controller
+    {
+        private IEmployeeRepository _employeeRepository;
+
+        public HomeController(IEmployeeRepository employeeRepository)
+        {
+            _employeeRepository = employeeRepository;
+        }
+        public string Index()
+        {
+            return _employeeRepository.GetEmployee(1).Name;
+        }
+    }
+}
+----------------------------------------------------------------------------------------------------------------------------------------
+Employee File
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace application.Asp.net_mvc_02.Models
+{
+    public class Employee
+    {
+        public int ID { get; set; }
+        public string Name {get;set;}
+        public string Email { get; set; }
+        public string Department { get; set; }
+    }
+}
+---------------------------------------------------------------------------------------------------------------------------------------
+ IEmployeeRepository
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace application.Asp.net_mvc_02.Models
+{
+   public interface IEmployeeRepository
+    {
+        Employee GetEmployee(int ID);   
+    }
+}
+---------------------------------------------------------------------------------------------------------------------------------------
+MockEmployeeRepository
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace application.Asp.net_mvc_02.Models
+{
+    public class MockEmployeeRepository : IEmployeeRepository //Deppency Injection
+    {
+        private List<Employee> _employeesList;
+
+        public MockEmployeeRepository()
+        {
+            _employeesList = new List<Employee>()
+            {
+                new Employee(){ID= 1010,Name ="Pradheepan", Department ="Informatic",Email="Pradheepan@gmail.com", },
+                new Employee(){ID= 1020,Name ="Kanesh", Department ="Finance",Email="Kanesh@gmail.com", },
+                new Employee(){ID= 1030,Name ="Thavam", Department ="Labour",Email="Thavam@gmail.com", },
+                new Employee(){ID= 1040,Name ="Murukan", Department ="Management",Email="Murikan@gmail.com", },
+            };
+        }
+        public Employee GetEmployee( int ID)
+        {
+            throw new NotSupportedException(); 
+        }
+    }
+}

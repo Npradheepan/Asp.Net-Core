@@ -46,3 +46,21 @@ namespace application.Asp.net_mvc_02
         }
     }
 }
+-------------------------------------------------Coll the Conntroller in homeController------------------------------------------------
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Asp.net_MVC_01.Controllers
+{
+    public class HomeController  : Controller
+    {
+        public JsonResult Index()
+        {
+            return Json (new { id = "40", Name = "Pradheepan" });
+        }
+    }
+        
+}

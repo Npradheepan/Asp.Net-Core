@@ -1,0 +1,131 @@
+Property class
+-------------------------Employee.cs------------------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Asp.net_EmployeesManagement_model.Employees
+{
+    public class Employee
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Department { get; set; }
+
+    }
+}
+-----------------------------IEmployee-------------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Asp.net_EmployeesManagement_model.Employees
+{
+    public interface IEmployee
+    {
+        Employee GetEmployee(int Id);
+    }
+}
+---------------------------------ModernEmployee------------------------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Asp.net_EmployeesManagement_model.Employees
+{
+    public class ModelEmployee : IEmployee
+    {
+      
+        private List<Employee> _employeesList;
+
+        public ModelEmployee()
+        {
+            _employeesList = new List<Employee>
+            {
+                new Employee(){Id= 1, Name="Pradheeepan",Department="HR",Email="pradheepan@gmail.com"},
+                new Employee(){Id= 2, Name="Suresh",Department="Finance",Email="Suresh@gmail.com"},
+                new Employee(){Id= 3, Name="Mathan",Department="IT",Email="Mathan@gmail.com"}
+            };
+        }
+        public Employee GetEmployee(int Id)
+        {
+            return _employeesList.FirstOrDefault(e => e.Id == Id);
+        }
+    }
+}
+________________________________________________Homecontrollers-----------------------------------------------
+using Asp.net_EmployeesManagement_model.Employees;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Asp.net_EmployeesManagement_model.Controllers
+{
+    public class HomeController : Controller
+    {
+        private IEmployee _employee;
+
+        public  HomeController(IEmployee employee)
+        {
+            _employee = employee;
+         }
+        public string index()
+        {
+            return _employee.GetEmployee(1).Name;   
+        }
+    }
+}
+-------------------------------sttartup-------------------------------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Asp.net_EmployeesManagement_model.Employees;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Asp.net_EmployeesManagement_model
+{
+    public class Startup
+    {
+        private IConfiguration _config;
+
+        public Startup(IConfiguration config)
+        {
+            _config = config;
+        }
+        // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvc();
+            services.AddSingleton<IEmployee, ModelEmployee>();
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseStaticFiles();
+            app.UseMvcWithDefaultRoute();
+
+            app.Run(async (context) =>
+            {
+                await context.Response.WriteAsync("Hello World!");
+            });
+        }
+    }
+}

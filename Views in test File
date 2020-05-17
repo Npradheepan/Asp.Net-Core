@@ -1,0 +1,54 @@
+<htm xmls="http://www.w3.org/1999/xhtml">
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <h3>@ViewData["PageTitles"] </h3>
+        @{ 
+            var employee = ViewData["Employee"] as  Asp.net_EmployeesManagement_model.Employees
+            
+            }
+        <div>
+            Name:@employee.Name
+        </div>
+        <div>
+            Email:@employee.Email
+        </div>
+        <div>
+            Department:Deparment
+        </div>
+        </body>
+</html>;
+------------------------------------------------------------controller---------------------------------
+using Asp.net_EmployeesManagement_model.Employees;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+ 
+namespace Asp.net_EmployeesManagement_model.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly IEmployee _employee;
+        
+        public  HomeController(IEmployee employee)
+        {
+            _employee = employee;
+         }
+        public string index()
+        {
+            return _employee.GetEmployee(1).Name;
+        }
+
+        public ViewResult  Details()
+        {
+            Employee model = _employee.GetEmployee(1);
+            ViewData["Employees"] = model;
+            ViewData["PageTitles"] = "Employee Details";
+            return View ();
+        }
+        
+    }
+}

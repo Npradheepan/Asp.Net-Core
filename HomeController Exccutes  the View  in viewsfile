@@ -1,0 +1,34 @@
+using Asp.net_EmployeesManagement_model.Employees;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+ 
+namespace Asp.net_EmployeesManagement_model.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly IEmployee _employee;
+        
+        public  HomeController(IEmployee employee)
+        {
+            _employee = employee;
+         }
+        public string index()
+        {
+            return _employee.GetEmployee(1).Name;
+        }
+
+        public ViewResult  Details()
+        {
+            Employee model = _employee.GetEmployee(1);
+            return View (model);
+        }
+        //public JsonResult Details()
+        //{
+        //    Employee model = _employee.GetEmployee(1);
+        //return Json(model);
+        //}
+    }
+}

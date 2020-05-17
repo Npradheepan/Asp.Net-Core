@@ -1,0 +1,62 @@
+<htm xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <h3>@ViewBag.PageTitle</h3>
+       
+        <div>
+            Name:@Model.Employee.Name
+        </div>
+        <div>
+            Email:@Model.Employee.Email
+        </div>
+        <div>
+            Department:@Model.Employee.Department
+        </div>
+
+
+       
+    </body>
+</html>
+-----------------------------------------------------------------Controller-------------------------------------------------------------
+using Asp.net_EmployeesManagement_model.Employees;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+ 
+namespace Asp.net_EmployeesManagement_model.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly IEmployee _employee;
+        
+        public  HomeController(IEmployee employee)
+        {
+            _employee = employee;
+         }
+        public string index()
+        {
+            return _employee.GetEmployee(1).Name;
+        }
+
+        public ViewResult Details()
+        {
+            Employee model = _employee.GetEmployee(1);
+            ViewBag.PageTitle = "Employee Details";
+            return View(model);
+        }
+
+        //public ViewResult  Details()
+        //{
+        //    Employee model = _employee.GetEmployee(1);
+        //    ViewBag.Employee= model;
+        //    ViewBag.PageTitle= "Employee Details";
+        //    return View ();
+        //}
+
+    }
+}
+

@@ -1,0 +1,95 @@
+file:views/shared/_layout.htmlcss
+--------------------------------
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <div>
+        @RenderBody()
+    </div>
+</body>
+</html>
+file: views/ home/index.htmlcss
+------------------------------
+@model IEnumerable<Asp.net_prject_02.Models.Employee>
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Employee";
+}
+
+
+   
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var employee in Model)
+                {
+                <tr>
+                    <td>@employee.Id</td>
+                    <td>@employee.Name</td>
+                    <td>@employee.Department</td>
+                </tr>
+                }
+            </tbody>foreach
+        </table>
+        
+        file: views/ home/Details.htmlcss
+        ---------------------------------------
+        @model Asp.net_prject_02.ViewModels.HomeDetailsViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Employee";
+}
+
+@*//Strongly type of models in views*@
+<h3>@ViewBag.PageTitle</h3>
+
+<div>
+    Name: @Model.Employee.Name
+</div>
+<div>
+    Email: @Model.Employee.Email
+</div>
+<div>
+    Department : @Model.Employee.Department
+</div>
+@*// this  type of model in viewBag*@
+@*<h3>@ViewBag.PageTitle</h3>
+
+    <div>
+        Name: @ViewBag.Employee.Name
+    </div>
+    <div>
+        Email: @ViewBag.Employee.Email
+    </div>
+    <div>
+        Department : @ViewBag.Employee.Department
+    </div>*@
+
+@*//thisi type of model View Data*@
+@*<h1>@ViewData["PageTitle"]</h1>
+    @{
+        var employee = ViewData["Employee"] as Asp.net_prject_02.Models.Employee;
+    }
+    <div>
+        Name: @employee.Name
+    </div>
+    <div>
+        Email: @employee.Email
+    </div>
+    <div>
+        Department: @employee.Department
+    </div>*@
+
+
+   

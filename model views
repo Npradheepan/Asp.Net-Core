@@ -1,0 +1,48 @@
+@model Asp.net_prject_02.Models.Employee
+<htm xmlns ="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+
+    @*//Strongly type of models in views*@
+    <h3>@ViewBag.PageTitle</h3>
+
+    <div>
+        Name: @Model.Name
+    </div>
+    <div>
+        Email: @Model.Email
+    </div>
+    <div>
+        Department : @Model.Department
+    </div>
+    @*// this  type of model in viewBag*@
+    @*<h3>@ViewBag.PageTitle</h3>
+
+        <div>
+            Name: @ViewBag.Employee.Name
+        </div>
+        <div>
+            Email: @ViewBag.Employee.Email
+        </div>
+        <div>
+            Department : @ViewBag.Employee.Department
+        </div>*@
+
+      @*//thisi type of model View Data*@
+    @*<h1>@ViewData["PageTitle"]</h1>
+        @{
+            var employee = ViewData["Employee"] as Asp.net_prject_02.Models.Employee;
+        }
+        <div>
+            Name: @employee.Name
+        </div>
+        <div>
+            Email: @employee.Email
+        </div>
+        <div>
+            Department: @employee.Department
+        </div>*@
+</body>
+</html>

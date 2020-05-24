@@ -1,3 +1,5 @@
+file:views/Details.htmlcss
+---------------------------
 @model Asp.net_prject_02.Models.Employee
 <htm xmlns ="http://www.w3.org/1999/xhtml">
 <head>

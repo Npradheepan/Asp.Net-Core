@@ -1,0 +1,23 @@
+ConfigureServices
+  {
+      services.AddMvc().AddXmlSerializerFormatters();
+      services.AddSingleton<IEmployee, ModelEmployee>();
+  }
+ -------------------------------------------------------------------------------------------------------------------------------------
+ 
+ app.UseStaticFiles();
+app.UseMvcWithDefaultRoute();
+
+app.UseMvc(routes =>
+    {
+        routes.MapRoute("default", "{Controller}/{action}/{Id}");
+  });
+  
+------------------------------------------------------------------------------------------------------------------------------------------  
+   app.UseStaticFiles();
+  app.UseMvcWithDefaultRoute();
+
+  app.Run(async (context) =>
+  {
+      await context.Response.WriteAsync("Hello World!");
+  });

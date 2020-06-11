@@ -1,0 +1,27 @@
+@model EmployeeManagement_000.ViewModels.HomeDetailsViewModel
+
+<html>
+    <head>
+            <title>
+
+            </title>
+    </head>
+    <body>
+        <h3>@Model.PageTitle</h3>
+            <div>
+                FirstName:@Model.Employee.FirstName
+            </div>
+            <div>
+                LastName:@Model.Employee.LastName
+            </div>
+            <div>
+                Email: @Model.Employee.Email
+            </div>
+            <div>
+                TeleNo: @Model.Employee.TeleNo
+            </div>
+            <div>
+                Department:@Model.Employee.Department
+            </div>
+    </body>
+</html>

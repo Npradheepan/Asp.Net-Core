@@ -1,0 +1,176 @@
+Create
+-----------
+@model Employee
+@{
+    ViewBag.Title = "Create Employee";
+  }
+<form asp-controller="Home" asp-action="create" method="post" class="mt-3">
+
+    <div class="form-group  row">
+        <label asp-for="FirstName" class="col-sm-2   col-form-label">FirstName</label>
+        <div class="col-sm-10">
+            <input asp-for="FirstName" class="form-control" placeholder="FirstName" />
+        </div>
+    </div>
+
+    <div class="form-group  row">
+        <label asp-for="LastName" class="col-sm-2   col-form-label">LastName</label>
+        <div class="col-sm-10">
+            <input asp-for="LastName" class="form-control" placeholder="LastName" />
+        </div>
+    </div>
+
+    <div class="form-group  row">
+        <label asp-for="Email" class="col-sm-2   col-form-label">Email</label>
+        <div class="col-sm-10">
+            <input asp-for="Email" class="form-control" placeholder="Email" />
+        </div>
+    </div>
+
+    <div class="form-group  row">
+        <label asp-for="TeleNo" class="col-sm-2   col-form-label">TeleNo</label>
+        <div class="col-sm-10">
+            <input asp-for="TeleNo" class="form-control" placeholder="TeleNo" />
+        </div>
+    </div>
+
+    <div class="form-group  row">
+        <label asp-for="Department" class="col-sm-2   col-form-label">Department</label>
+        <div class="col-sm-10">
+            <select asp-for="Department" asp-items="Html.GetEnumSelectList<Dept>()"><</select>
+        </div>
+    </div>
+
+    <div>
+        <button type="submit">Create</button>
+    </div>
+</form>
+
+IemployeeRepository
+-------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{
+   public  interface IEmployeeRepository
+    {
+        Employee GetEmployee(int Id);
+        IEnumerable<Employee>  GetAllEmployee();
+        Employee Add(Employee employee);
+    }
+}
+ModelEmployeeRepository
+-------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{
+    public class ModelEmployeeRepository : IEmployeeRepository
+    {
+        private List<Employee> _employeeLsit;
+
+        public ModelEmployeeRepository()
+        {
+            _employeeLsit =new List<Employee> ()
+                {
+                new Employee() { Id = 1, FirstName = "Theepan", LastName = "Navaradnarrajah", Email = "pradheepansri@gmail.com", TeleNo = 015152284743, Department = Dept.IT },
+                new Employee() { Id = 2, FirstName = "Davor", LastName = "Gomisch", Email = "DV@kps.Kommunikation", TeleNo = 0187835465, Department = Dept.Management },
+                new Employee() { Id = 3, FirstName = "Gristina", LastName = "Deutsch", Email = "GD@kps.Kommunikation", TeleNo = 0123356545, Department = Dept.HR }
+                 };
+        }
+
+        public Employee Add(Employee employee)
+        {
+            employee.Id =_employeeLsit.Max(e => e.Id) + 1;
+            _employeeLsit.Add(employee);
+            return employee;
+        }
+
+        public IEnumerable<Employee> GetAllEmployee()
+        {
+            return _employeeLsit;
+        }
+
+        public Employee GetEmployee(int Id)
+        {
+            return _employeeLsit.FirstOrDefault(e => e.Id == Id);
+        }
+    }
+}
+
+Home Controller
+---------------------
+using EmployeeManagement_000.Model;
+using EmployeeManagement_000.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly IEmployeeRepository _employeeRepository;
+
+        public HomeController(IEmployeeRepository employeeRepository)
+        {
+            _employeeRepository = employeeRepository;
+        }
+        public ViewResult Index()
+        {
+            var model = _employeeRepository.GetAllEmployee();
+            return View(model);
+        }
+
+        public ViewResult Details(int? id)
+        {
+            HomeDetailsViewModel homeDetailsViewModel = new HomeDetailsViewModel()
+            {
+                Employee = _employeeRepository.GetEmployee(id ?? 1),
+                PageTitle = "Employee Details"
+            };
+            return View(homeDetailsViewModel);
+        }
+        [HttpGet]
+        public ViewResult Create()
+        {
+            return View();
+        }
+        [HttpPost]
+        public RedirectToActionResult Create(Employee employee)
+        {
+            Employee newEmployee = _employeeRepository.Add(employee);
+            return RedirectToAction("details", new {id = newEmployee});
+        }
+    }
+}
+
+Dept/Enumrable
+-----------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{
+    public enum Dept
+    {
+        None,
+        IT,
+        HR,
+        Payroll,
+        Management
+    }
+}
+
+
+

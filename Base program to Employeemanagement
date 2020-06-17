@@ -1,0 +1,228 @@
+Starup
+------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using EmployeeManagementEx01.Models;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace EmployeeManagementEx01
+{
+    public class Startup
+    {
+        private IConfiguration _config;
+
+        public Startup (IConfiguration config)
+        {
+            _config = config;
+        }
+        // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvc();
+            services.AddSingleton<IEmployeeRepository, ModelEmployeeRepository>();
+
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            app.UseStaticFiles();
+            app.UseMvcWithDefaultRoute();
+            app.Run(async (context) =>
+            {
+                await context.Response.WriteAsync("Hello World!");
+            });
+        }
+    }
+}
+
+Employee
+--------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagementEx01.Models
+{
+    public class Employee
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }  
+        public string Email { get; set; }
+        public string Department { get; set; }
+    }
+}
+
+IEmployeeRepository
+------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagementEx01.Models
+{
+   public interface IEmployeeRepository
+    {
+        Employee GetEmployee(int Id);
+        IEnumerable<Employee>GetAllEmployees();
+    }
+}
+
+ModelEmployeeRepository
+---------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagementEx01.Models
+{
+    public class ModelEmployeeRepository : IEmployeeRepository
+    {
+        private List<Employee> _employeeLsit;
+
+        public ModelEmployeeRepository()
+        {
+            _employeeLsit = new List<Employee>()
+            {
+                new Employee(){Id=1, Name="Pradheepan", Email="prad@gmail.com",Department="IT" },
+                new Employee(){Id=2, Name="Jhone", Email="March@yahoo.com",Department="HR" },
+                new Employee(){Id=3, Name="David", Email="müller@hotmail.com",Department="Payroll" },
+                new Employee(){Id=4, Name="Maran", Email="masy@gmail.com",Department="Health" }
+            };
+        }
+
+        public IEnumerable<Employee> GetAllEmployees()
+        {
+            return _employeeLsit;
+        }
+
+        public Employee GetEmployee(int Id)
+        {
+         return _employeeLsit.FirstOrDefault(e => e.Id == Id);
+        }
+    }
+}
+HomeController
+-------------------
+using EmployeeManagementEx01.Models;
+using EmployeeManagementEx01.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagementEx01.Controllers
+{
+    public class  HomeController: Controller
+    {
+        private readonly IEmployeeRepository _employeeRepository;
+
+        public HomeController  (IEmployeeRepository employeeRepository)
+        {
+            _employeeRepository = employeeRepository;
+        }
+        public ViewResult Index()
+        {
+            var model = _employeeRepository.GetAllEmployees();  
+            return View(model);
+        }
+        public ViewResult Details()
+        {
+            HomeDetailsViewModel homeDetailsViewModel = new HomeDetailsViewModel()
+            {
+                Employee = _employeeRepository.GetEmployee(1),
+                PageTitle = "Employee Details"
+        };
+             
+            return View(homeDetailsViewModel);
+        }
+    }
+}
+
+HomeDetailsViewModel
+-------------------
+using EmployeeManagementEx01.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagementEx01.ViewModels
+{
+    public class HomeDetailsViewModel
+    {
+        public Employee Employee { get; set; }
+        public string PageTitle { get; set; }
+    }
+}
+
+
+Details.cdhtml
+----------------
+@model EmployeeManagementEx01.ViewModels.HomeDetailsViewModel
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <h3>@Model.PageTitle</h3>
+    <div>
+        Name: @Model.Employee.Name
+    </div>
+    <div>
+        Email: @Model.Employee.Email
+    </div>
+    <div>
+        Department: @Model.Employee.Department
+    </div>
+
+</body>
+</html>
+
+Index.cshtml
+-----------------
+@model IEnumerable<EmployeeManagementEx01.Models.Employee>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var employee in Model)
+            {
+            <tr>
+                <td>@employee.Id</td>
+                <td>@employee.Name</td>
+                <td>@employee.Email</td>
+                <td>@employee.Department</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,260 @@
+Employee
+--------
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{
+    public class Employee
+    {
+        public int Id { get; set; }
+        [Required]
+        [MaxLength(100, ErrorMessage = "Large Latter")]
+        public string FirstName { get; set;}
+        [Required]
+        [MaxLength(100, ErrorMessage = "Large Latter")]
+        public string LastName { get; set;}
+        [Required]
+        public Int64 TeleNo { get; set;}
+        [Required]
+        [RegularExpression(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",  ErrorMessage = "Invalid Email Format")]
+        [Display(Name = "Office Mail")]
+        public string Email { get; set;}
+        [Required]
+        public Dept? Department { get; set;}
+        public string PhotoPath{ get; set; }
+    }
+}
+
+IEmployeeRepository
+-------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{ 
+   public  interface IEmployeeRepository
+    {
+        Employee GetEmployee(int Id);
+        IEnumerable<Employee>  GetAllEmployee();
+        Employee Add(Employee employee);
+        Employee Update(Employee employeechanges);
+        Employee Delete(int id);
+    }
+}
+
+Dept
+------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{
+    public enum Dept
+    {
+        None,
+        IT,
+        HR,
+        Payroll,
+        Management
+    }
+}
+
+appDbContext
+------------
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{
+    public class AppDbContext:DbContext
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) 
+            :base(options)
+        {
+
+        }
+        public DbSet<Employee> Employees { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.seed();
+        }
+    }
+}
+
+
+ModelEployeeRepository
+-----------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{
+    public class ModelEmployeeRepository : IEmployeeRepository
+    {
+        private List<Employee> _employeeLsit;
+
+        public ModelEmployeeRepository()
+        {
+            _employeeLsit =new List<Employee> ()
+                {
+                new Employee() { Id = 1, FirstName = "Theepan", LastName = "Navaradnarrajah", Email = "pradheepansri@gmail.com", TeleNo = 015152284743, Department = Dept.IT },
+                new Employee() { Id = 2, FirstName = "Davor", LastName = "Gomisch", Email = "DV@kps.Kommunikation", TeleNo = 0187835465, Department = Dept.Management },
+                new Employee() { Id = 3, FirstName = "Gristina", LastName = "Deutsch", Email = "GD@kps.Kommunikation", TeleNo = 0123356545, Department = Dept.HR }
+                 };
+        }
+
+        public Employee Add(Employee employee)
+        {
+            employee.Id =_employeeLsit.Max(e => e.Id) + 1;
+            _employeeLsit.Add(employee);
+            return employee;
+        }
+
+        public Employee Delete(int id)
+        {
+            Employee employee = _employeeLsit.FirstOrDefault(e => e.Id == id);
+            if (employee != null)
+            {
+                _employeeLsit.Remove(employee);
+            }
+            return employee;
+        }
+
+        public IEnumerable<Employee> GetAllEmployee()
+        {
+            return _employeeLsit;
+        }
+
+        public Employee GetEmployee(int Id)
+        {
+            return _employeeLsit.FirstOrDefault(e => e.Id == Id);
+        }
+
+        public Employee Update(Employee employeechanges)
+        {
+            Employee employee = _employeeLsit.FirstOrDefault(e => e.Id == employeechanges.Id);
+            if (employee != null)
+            {
+                employee.FirstName = employeechanges.FirstName;
+                employee.LastName= employeechanges.LastName;
+                employee.Email = employeechanges.Email;
+                employee.TeleNo = employeechanges.TeleNo;
+                employee.Department = employeechanges.Department;
+            }
+            return employee;
+        }
+    }
+}
+
+SQL Repository
+--------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{
+    public class SQLEmployeeRepository : IEmployeeRepository
+    {
+        private readonly  AppDbContext context;
+
+        public SQLEmployeeRepository(AppDbContext context)
+        {
+            this.context  =  context;
+        }
+
+        public Employee Add(Employee employee)
+        {
+            context.Employees.Add(employee);
+            context.SaveChanges();
+             return employee;
+        }
+
+        public Employee Delete(int id)
+        {
+            Employee employee = context.Employees.Find(id);
+            if(employee != null)
+            {
+                context.Employees.Remove(employee);
+                context.SaveChanges();
+            }
+            return employee;
+        }
+
+        public IEnumerable<Employee> GetAllEmployee()
+        {
+            return context.Employees;
+        }
+
+        public Employee GetEmployee(int Id)
+        {
+            return context.Employees.Find(Id);
+        }
+
+        public Employee Update(Employee employeechanges)
+        {
+            var employee = context.Employees.Attach(employeechanges);
+            employee.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            context.SaveChanges();
+            return employeechanges;
+        }
+    }
+}
+
+
+ ModelBuilderExtensions
+ ----------------------
+ 
+ using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.Model
+{
+    public static class ModelBuilderExtensions
+    {
+
+        public static void seed(this ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employee>().HasData(
+               new Employee
+               {
+                   Id = 1,
+                   FirstName = "Navaradnarajah",
+                   LastName = "Pradheepan",
+                   Email = "pradheepanger@gmail.com",
+                   TeleNo = 0980147,
+                   Department = Dept.IT
+               },
+              new Employee
+              {
+                  Id = 2,
+                  FirstName = "Thanalechumy",
+                  LastName = "Kavitharuby",
+                  Email = "kavitha@gmail.com",
+                  TeleNo = 875565338,
+                  Department = Dept.HR
+              }
+           );
+        }
+    }
+}
+
+

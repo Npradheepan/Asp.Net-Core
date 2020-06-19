@@ -1,0 +1,136 @@
+using EmployeeManagement_000.Model;
+using EmployeeManagement_000.ViewModels;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EmployeeManagement_000.controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IHostingEnvironment hostingEnviroment;
+
+        public HomeController(IEmployeeRepository employeeRepository,
+                                                    IHostingEnvironment hostingEnviroment)
+        {
+            _employeeRepository = employeeRepository;
+            this.hostingEnviroment = hostingEnviroment;
+        }
+        public ViewResult Index()
+        {
+            var model = _employeeRepository.GetAllEmployee();
+            return View(model);
+        }
+
+        public ViewResult Details(int? id)
+        {
+            HomeDetailsViewModel homeDetailsViewModel = new HomeDetailsViewModel()
+            {
+                Employee = _employeeRepository.GetEmployee(id ?? 1),
+                PageTitle = "Employee Details"
+            };
+            return View(homeDetailsViewModel);
+        }
+        [HttpGet]
+        public ViewResult Create()
+        {
+            return View();
+        }
+        [HttpGet]
+        public ViewResult Edit(int id)
+        {
+            Employee employee = _employeeRepository.GetEmployee(id);
+            EmployeeEditViewModel employeeEditViewModel = new EmployeeEditViewModel
+            {
+                Id = employee.Id,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                Email = employee.Email,
+                TeleNo = employee.TeleNo,
+                Department = employee.Department,
+                 
+            };
+            return View(employeeEditViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(EmployeeEditViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                Employee employee = _employeeRepository.GetEmployee(model.Id);
+                employee.FirstName = model.FirstName;
+                employee.LastName = model.LastName;
+                employee.Email = model.Email;
+                employee.TeleNo = model.TeleNo;
+                employee.Department = model.Department;
+                employee.PhotoPath = model.ExistingPhotopath;
+                if(model.Photos != null)
+                {
+                    if(model.ExistingPhotopath != null)
+                    {
+                        string  filePath = Path.Combine(hostingEnviroment.WebRootPath,"images",model.ExistingPhotopath);
+                        System.IO.File.Delete(filePath);
+                    }
+                     employee.PhotoPath= ProcessUploadedFile(model);
+                }
+
+                _employeeRepository.Update(employee);
+                return RedirectToAction("index");   
+                
+            }
+            return View();
+
+        }
+        
+        private string ProcessUploadedFile(EmployeeCreateViewModel model)
+        {
+            string uniqueFileName = null;
+            if (model.Photos != null && model.Photos.Count > 0)
+            {
+                foreach (IFormFile Photo in model.Photos)
+                {
+                    string uploadsfolder = Path.Combine(hostingEnviroment.WebRootPath, "images");
+                    uniqueFileName = Guid.NewGuid().ToString() + "_" + Photo.FileName;
+                    string filePath = Path.Combine(uploadsfolder, uniqueFileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        model.Photo.copyTo(fileStream);
+                    }
+                    
+                }
+            }
+
+            return uniqueFileName;
+        }
+
+        [HttpPost]
+        public IActionResult Create(EmployeeCreateViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                string uniqueFileName = ProcessUploadedFile(model);
+                Employee newEmployee = new Employee
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    TeleNo = model.TeleNo,
+                    Department = model.Department,
+                    PhotoPath = uniqueFileName
+                };
+                _employeeRepository.Add(newEmployee);
+                return RedirectToAction("details", new { id = newEmployee.Id });
+                //return RedirectToAction("details", new { id = newEmployee });
+            }
+            return View();
+          
+        }
+    }
+}

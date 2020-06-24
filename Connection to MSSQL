@@ -1,0 +1,14 @@
+appsetting.json
+------------------
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Mey": "Value Of Key From appsetting.json",
+  "ConnectionStrings": {
+    "EmployeeDBConnection": "server=(localdb)\\MSSQLLocalDB;database=EmployeeDB;Trusted_Connection=true"
+  }
+}

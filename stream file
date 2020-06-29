@@ -1,0 +1,15 @@
+using System;
+using System.IO;
+class ExceptionHandling
+{
+    public static void Main()
+    {
+        //This line will throw FileNotFoundException
+        StreamReader streamReader = new StreamReader("C:\\NonExistingFile.txt");
+        Console.WriteLine(streamReader.ReadToEnd());
+        //Closes the underlying stream and releases the system resources.
+        //If there is an exception before this line, the below line will never
+ //be executed and the resources are not relased
+        streamReader.Close();
+    }
+}

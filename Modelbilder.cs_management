@@ -1,0 +1,32 @@
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace ManagementOfEmployees.Models
+{
+    public static class ModelBuilderExtension
+    {
+        public static void Seed(this ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employee>().HasData(
+               new Employee
+               {
+                   Id = 1,
+                   Name = "Mark",
+                   Email = "Mark@hotmail.com",
+                   Department = Dept.HR,
+               },
+                  new Employee
+                  {
+                      Id = 2,
+                      Name = "Thomash",
+                      Email = "thomash@hotmail.com",
+                      Department = Dept.None,
+                  }
+               );
+
+        }
+    }
+}

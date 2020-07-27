@@ -1,0 +1,48 @@
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+{
+    if (env.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+    else
+    {
+        app.UseStatusCodePagesWithRedirects("/Error/{0}");
+    }
+
+    app.UseStaticFiles();
+
+    app.UseMvc(routes =>
+    {
+        routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
+    });
+}
+
+Error Controller
+---------------------
+public class ErrorController : Controller
+{
+    // If there is 404 status code, the route path will become Error/404
+    [Route("Error/{statusCode}")]
+    public IActionResult HttpStatusCodeHandler(int statusCode)
+    {
+        switch (statusCode)
+        {
+            case 404:
+                ViewBag.ErrorMessage = "Sorry, the resource you requested could not be found";
+                break;
+        }
+
+        return View("NotFound");
+    }
+}
+Error Views
+-----------------
+@{
+    ViewBag.Title = "Not Found";
+}
+
+<h1>@ViewBag.ErrorMessage</h1>
+
+<a asp-action="index" asp-controller="home">
+    Click here to navigate to the home page
+</a>
